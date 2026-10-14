@@ -1,63 +1,83 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+
+
+
+type WelcomeHeaderProps = {
+  title: string;
+  subtitle: string;
+};
+
+type ProgressCardProps = {
+  progress: string;
+  completed: number;
+  total: number;
+};
+
+
+function WelcomeHeader({ title, subtitle }: WelcomeHeaderProps) {
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
+    <View style={styles.header}>
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.subtitle}>
+        {subtitle}
+      </Text>
+    </View>
+  );
+}
+
+function ProgressCard({ progress, completed, total }: ProgressCardProps) {
+  const progress1 = total > 0 ? Math.min(completed / total, 1) : 0;
+  return (
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>{progress}</Text>
+      <Text style={styles.progress}>{completed} of {total} small steps</Text>
+      <View style={styles.progressTrack}>
+        <View
+          style={[
+            styles.progressFill,
+            { width: `${progress1 * 100}%` },
+          ]}
+        />
+      </View>
+    </View>
   );
 }
 
 export default function HomeScreen() {
+  const [goals, setGoals] = useState([
+    { title: 'Drink more water', completed: 3, total: 8 },
+    { title: 'Exercise regularly', completed: 5, total: 10 },
+    { title: 'Read daily', completed: 2, total: 7 },
+    { title: 'Meditate', completed: 4, total: 6 },
+    { title: 'Sleep early', completed: 1, total: 5 },
+  ]);
+
+
+
+
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+    <View style={styles.container}>
+      <WelcomeHeader title="PocketPulse" subtitle="Small steps. Real progress." />
+      
+<ScrollView
+  style={styles.goalsList}
+  contentContainerStyle={styles.goalsContent}
+  showsVerticalScrollIndicator={false}
+>
+  {goals.map((goal) => (
+    <ProgressCard
+      key={goal.title}
+      progress={goal.title}
+      completed={goal.completed}
+      total={goal.total}
+    />
+  ))}
+</ScrollView>
+  
+    </View>
   );
 }
 
@@ -65,34 +85,59 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
     alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+    padding: 24,
+    backgroundColor: '#F5F3FF',
   },
-  heroSection: {
+  header: {
     alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
   },
   title: {
-    textAlign: 'center',
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#6D28D9',
   },
-  code: {
-    textTransform: 'uppercase',
+  subtitle: {
+    marginTop: 8,
+    fontSize: 16,
+    color: '#4B5563',
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  card: {
+    width: '100%',
+    marginTop: 32,
+    padding: 20,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
   },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#374151',
+  },
+  progress: {
+    marginTop: 10,
+    fontSize: 15,
+    color: '#6D28D9',
+  },
+
+progressTrack: {
+  height: 8,
+  backgroundColor: '#E9D5FF',
+  borderRadius: 999,
+  marginTop: 14,
+  overflow: 'hidden',
+},
+progressFill: {
+  height: '100%',
+  backgroundColor: '#7C3AED',
+  borderRadius: 999,
+},
+goalsList: {
+  width: '100%',
+  marginTop: 8,
+},
+goalsContent: {
+  paddingBottom: 24,
+},
+
 });
