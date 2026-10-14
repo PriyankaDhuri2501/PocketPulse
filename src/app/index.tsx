@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 
 
@@ -14,6 +14,7 @@ type ProgressCardProps = {
   progress: string;
   completed: number;
   total: number;
+  onComplete: () => void;
 };
 
 
@@ -28,7 +29,7 @@ function WelcomeHeader({ title, subtitle }: WelcomeHeaderProps) {
   );
 }
 
-function ProgressCard({ progress, completed, total }: ProgressCardProps) {
+function ProgressCard({ progress, completed, total, onComplete }: ProgressCardProps) {
   const progress1 = total > 0 ? Math.min(completed / total, 1) : 0;
   return (
     <View style={styles.card}>
@@ -42,6 +43,9 @@ function ProgressCard({ progress, completed, total }: ProgressCardProps) {
           ]}
         />
       </View>
+      <Pressable style={styles.completeButton} onPress={onComplete}>
+        <Text style={styles.completeButtonText}>Complete one step</Text>
+      </Pressable>
     </View>
   );
 }
@@ -53,8 +57,19 @@ export default function HomeScreen() {
     { title: 'Read daily', completed: 2, total: 7 },
     { title: 'Meditate', completed: 4, total: 6 },
     { title: 'Sleep early', completed: 1, total: 5 },
+  
   ]);
 
+
+function completeGoal(title: string) {
+  setGoals((currentGoals) =>
+    currentGoals.map((goal) =>
+      goal.title === title && goal.completed < goal.total
+        ? { ...goal, completed: goal.completed + 1 }
+        : goal
+    )
+  );
+}
 
 
 
@@ -73,6 +88,7 @@ export default function HomeScreen() {
       progress={goal.title}
       completed={goal.completed}
       total={goal.total}
+      onComplete={() => completeGoal(goal.title)}
     />
   ))}
 </ScrollView>
@@ -139,5 +155,19 @@ goalsList: {
 goalsContent: {
   paddingBottom: 24,
 },
+
+completeButton: {
+  marginTop: 16,
+  paddingVertical: 12,
+  borderRadius: 10,
+  backgroundColor: '#7C3AED',
+  alignItems: 'center',
+},
+completeButtonText: {
+  color: '#FFFFFF',
+  fontSize: 14,
+  fontWeight: '600',
+},
+
 
 });
