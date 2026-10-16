@@ -1,8 +1,6 @@
 
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-
-
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 
 type WelcomeHeaderProps = {
@@ -15,6 +13,7 @@ type ProgressCardProps = {
   completed: number;
   total: number;
   onComplete: () => void;
+  onReset: () => void;
 };
 
 
@@ -25,11 +24,17 @@ function WelcomeHeader({ title, subtitle }: WelcomeHeaderProps) {
       <Text style={styles.subtitle}>
         {subtitle}
       </Text>
+  
+
     </View>
+    
+  
   );
 }
 
-function ProgressCard({ progress, completed, total, onComplete }: ProgressCardProps) {
+
+
+function ProgressCard({ progress, completed, total, onComplete, onReset }: ProgressCardProps) {
   const progress1 = total > 0 ? Math.min(completed / total, 1) : 0;
   return (
     <View style={styles.card}>
@@ -43,9 +48,25 @@ function ProgressCard({ progress, completed, total, onComplete }: ProgressCardPr
           ]}
         />
       </View>
-      <Pressable style={styles.completeButton} onPress={onComplete}>
-        <Text style={styles.completeButtonText}>Complete one step</Text>
+      
+      <Pressable
+        style={[
+          styles.completeButton,
+          completed >= total && styles.disabledButton,
+        ]}
+        onPress={onComplete}
+        disabled={completed >= total}
+      >
+        <Text style={styles.completeButtonText}>
+          {completed >= total ? 'Goal completed!' : 'Complete one step'}
+        </Text>
       </Pressable>
+      <Pressable
+      style ={[styles.resetButton]}
+        onPress={onReset}>
+        <Text style={styles.resetButtonText}>Reset Goal</Text>
+      </Pressable>
+
     </View>
   );
 }
@@ -59,6 +80,7 @@ export default function HomeScreen() {
     { title: 'Sleep early', completed: 1, total: 5 },
   
   ]);
+  const [newGoalTitle, setNewGoalTitle] = useState('');
 
 
 function completeGoal(title: string) {
@@ -72,10 +94,46 @@ function completeGoal(title: string) {
 }
 
 
+function resetGoal(title: string) {
+  setGoals((currentGoals) =>
+    currentGoals.map((goal) =>
+      goal.title === title
+        ? { ...goal, completed: 0 }
+        : goal
+    )
+  );
+}
+
+function addGoal() {
+  if (newGoalTitle.trim() === '') {
+    return;
+  }
+
+  setGoals((currentGoals) => [
+    ...currentGoals,
+    {
+      title: newGoalTitle.trim(),
+      completed: 0,
+      total: 5,
+    },
+  ]);
+
+  setNewGoalTitle('');
+}
+
 
   return (
     <View style={styles.container}>
       <WelcomeHeader title="PocketPulse" subtitle="Small steps. Real progress." />
+      <TextInput
+  placeholder="Enter a new goal"
+  value={newGoalTitle}
+  onChangeText={setNewGoalTitle}
+  style={styles.goalInput}
+/>
+<Pressable style={styles.addGoalButton} onPress={addGoal}>
+  <Text style={styles.addGoalButtonText}>Add Goal</Text>
+</Pressable>
       
 <ScrollView
   style={styles.goalsList}
@@ -89,6 +147,7 @@ function completeGoal(title: string) {
       completed={goal.completed}
       total={goal.total}
       onComplete={() => completeGoal(goal.title)}
+      onReset={() => resetGoal(goal.title)}
     />
   ))}
 </ScrollView>
@@ -169,5 +228,44 @@ completeButtonText: {
   fontWeight: '600',
 },
 
+disabledButton: {
+  backgroundColor: '#9CA3AF',
+},
 
+resetButton: {
+  marginTop: 8,
+  paddingVertical: 10,
+  borderRadius: 10,
+  alignItems: 'center',
+  backgroundColor: '#F3F4F6',
+},
+resetButtonText: {
+  color: '#374151',
+  fontSize: 14,
+  fontWeight: '600',
+},
+goalInput: {
+  backgroundColor: '#FFFFFF',
+  borderWidth: 1,
+  borderColor: '#D1D5DB',
+  borderRadius: 12,
+  padding: 14,
+  fontSize: 16,
+  color: '#1F2937',
+  marginBottom: 12,
+},
+addGoalButton: {
+  backgroundColor: '#7C3AED',
+  padding: 14,
+  borderRadius: 12,
+  alignItems: 'center',
+  marginBottom: 20,
+},
+addGoalButtonText: {
+  color: '#FFFFFF',
+  fontSize: 16,
+  fontWeight: '600',
+},
 });
+
+
