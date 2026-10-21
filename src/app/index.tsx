@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, Alert } from 'react-native';
 
 
 type WelcomeHeaderProps = {
@@ -14,6 +14,7 @@ type ProgressCardProps = {
   total: number;
   onComplete: () => void;
   onReset: () => void;
+  onDelete: () => void;
 };
 
 
@@ -127,10 +128,25 @@ function addGoal() {
 
   setNewGoalTitle('');
 }
-
 function deleteGoal(title: string) {
-  setGoals((currentGoals) =>
-    currentGoals.filter((goal) => goal.title !== title)
+  Alert.alert(
+    'Delete Goal',
+    `Are you sure you want to delete "${title}"?`,
+    [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          setGoals((currentGoals) =>
+            currentGoals.filter((goal) => goal.title !== title)
+          );
+        },
+      },
+    ]
   );
 }
 
@@ -147,9 +163,6 @@ function deleteGoal(title: string) {
   <Text style={styles.addGoalButtonText}>Add Goal</Text>
 </Pressable>
       
-<Pressable style={styles.addGoalButton} onPress={() => deleteGoal(newGoalTitle)}>
-  <Text style={styles.addGoalButtonText}>Delete Goal</Text>
-</Pressable>
 
 
 
