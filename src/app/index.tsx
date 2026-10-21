@@ -34,7 +34,7 @@ function WelcomeHeader({ title, subtitle }: WelcomeHeaderProps) {
 
 
 
-function ProgressCard({ progress, completed, total, onComplete, onReset }: ProgressCardProps) {
+function ProgressCard({ progress, completed, total, onComplete, onReset, onDelete}: ProgressCardProps) {
   const progress1 = total > 0 ? Math.min(completed / total, 1) : 0;
   return (
     <View style={styles.card}>
@@ -66,7 +66,12 @@ function ProgressCard({ progress, completed, total, onComplete, onReset }: Progr
         onPress={onReset}>
         <Text style={styles.resetButtonText}>Reset Goal</Text>
       </Pressable>
-
+    
+    <Pressable 
+    style={[styles.deleteButton]}
+    onPress={onDelete}>
+      <Text style={styles.deleteButtonText}>Delete Goal</Text>
+    </Pressable>
     </View>
   );
 }
@@ -104,6 +109,8 @@ function resetGoal(title: string) {
   );
 }
 
+
+
 function addGoal() {
   if (newGoalTitle.trim() === '') {
     return;
@@ -121,6 +128,11 @@ function addGoal() {
   setNewGoalTitle('');
 }
 
+function deleteGoal(title: string) {
+  setGoals((currentGoals) =>
+    currentGoals.filter((goal) => goal.title !== title)
+  );
+}
 
   return (
     <View style={styles.container}>
@@ -135,6 +147,12 @@ function addGoal() {
   <Text style={styles.addGoalButtonText}>Add Goal</Text>
 </Pressable>
       
+<Pressable style={styles.addGoalButton} onPress={() => deleteGoal(newGoalTitle)}>
+  <Text style={styles.addGoalButtonText}>Delete Goal</Text>
+</Pressable>
+
+
+
 <ScrollView
   style={styles.goalsList}
   contentContainerStyle={styles.goalsContent}
@@ -148,6 +166,7 @@ function addGoal() {
       total={goal.total}
       onComplete={() => completeGoal(goal.title)}
       onReset={() => resetGoal(goal.title)}
+      onDelete={() => deleteGoal(goal.title)}
     />
   ))}
 </ScrollView>
@@ -264,6 +283,18 @@ addGoalButton: {
 addGoalButtonText: {
   color: '#FFFFFF',
   fontSize: 16,
+  fontWeight: '600',
+},
+deleteButton: {
+  marginTop: 8,
+  paddingVertical: 10,
+  borderRadius: 10,
+  alignItems: 'center',
+  backgroundColor: '#EF4444',
+},
+deleteButtonText: {
+  color: '#FFFFFF',
+  fontSize: 14,
   fontWeight: '600',
 },
 });
