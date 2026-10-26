@@ -127,9 +127,9 @@ function completeGoal(id: string) {
 }
 
 
-function resetGoal(title: string) {
+function resetGoal(id: string) {
   const updatedGoals = goals.map((goal) =>
-      goal.title === title
+      goal.id === id
         ? { ...goal, completed: 0 }
         : goal
     )
@@ -158,12 +158,10 @@ function addGoal() {
 
 }
 
-
-
-function deleteGoal(title: string) {
+function deleteGoal(id: string) {
   Alert.alert(
     'Delete Goal',
-    `Are you sure you want to delete "${title}"?`,
+    `Are you sure you want to delete this goal?`,
     [
       {
         text: 'Cancel',
@@ -173,7 +171,7 @@ function deleteGoal(title: string) {
         text: 'Delete',
         style: 'destructive',
         onPress: () => {
-          const updatedGoals = goals.filter((goal) => goal.title !== title);
+          const updatedGoals = goals.filter((goal) => goal.id !== id);
           setGoals(updatedGoals);
           saveGoals(updatedGoals);
         },
@@ -215,8 +213,8 @@ useEffect(() => {
       completed={goal.completed}
       total={goal.total}
       onComplete={() => completeGoal(goal.id)}
-      onReset={() => resetGoal(goal.title)}
-      onDelete={() => deleteGoal(goal.title)}
+      onReset={() => resetGoal(goal.id)}
+      onDelete={() => deleteGoal(goal.id)}
     />
   ))}
 </ScrollView>
