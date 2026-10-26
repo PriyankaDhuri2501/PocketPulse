@@ -1,6 +1,7 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 type WelcomeHeaderProps = {
@@ -79,35 +80,61 @@ function ProgressCard({ progress, completed, total, onComplete, onReset, onDelet
 
 export default function HomeScreen() {
   const [goals, setGoals] = useState([
-    { title: 'Drink more water', completed: 3, total: 8 },
-    { title: 'Exercise regularly', completed: 5, total: 10 },
-    { title: 'Read daily', completed: 2, total: 7 },
-    { title: 'Meditate', completed: 4, total: 6 },
-    { title: 'Sleep early', completed: 1, total: 5 },
+    { id: '1', title: 'Drink more water', completed: 3, total: 8 },
+    { id: '2', title: 'Exercise regularly', completed: 5, total: 10 },
   
   ]);
+
+  const savedGoals = JSON.stringify(goals);
   const [newGoalTitle, setNewGoalTitle] = useState('');
 
+async function saveGoals(updatedGoals: typeof goals) {
+  try {
+    await AsyncStorage.setItem(
+      'pocketpulse_goals',
+      JSON.stringify(updatedGoals)
+    );
+  } catch (error) {
+    console.log('Error saving goals:', error);
+  }
+}
 
-function completeGoal(title: string) {
-  setGoals((currentGoals) =>
-    currentGoals.map((goal) =>
-      goal.title === title && goal.completed < goal.total
+
+async function loadGoals() {
+  try {
+    const savedGoals = await AsyncStorage.getItem(
+      'pocketpulse_goals'
+    );
+
+    if (savedGoals !== null) {
+      setGoals(JSON.parse(savedGoals));
+    }
+  } catch (error) {
+    console.log('Error loading goals:', error);
+  }
+}
+
+
+function completeGoal(id: string) {
+  const updatedGoals = goals.map((goal) =>
+      goal.id == id && goal.completed < goal.total
         ? { ...goal, completed: goal.completed + 1 }
         : goal
     )
-  );
+    setGoals(updatedGoals);
+    saveGoals(updatedGoals);
+
 }
 
 
 function resetGoal(title: string) {
-  setGoals((currentGoals) =>
-    currentGoals.map((goal) =>
+  const updatedGoals = goals.map((goal) =>
       goal.title === title
         ? { ...goal, completed: 0 }
         : goal
     )
-  );
+    setGoals(updatedGoals);
+    saveGoals(updatedGoals);
 }
 
 
@@ -117,17 +144,22 @@ function addGoal() {
     return;
   }
 
-  setGoals((currentGoals) => [
-    ...currentGoals,
+  const updatedGoals = [
+    ...goals,
     {
+      id: `${Date.now()}-${Math.random()}`,
       title: newGoalTitle.trim(),
       completed: 0,
       total: 5,
     },
-  ]);
+  ]
+  setGoals(updatedGoals);
+  saveGoals(updatedGoals);
 
-  setNewGoalTitle('');
 }
+
+
+
 function deleteGoal(title: string) {
   Alert.alert(
     'Delete Goal',
@@ -141,14 +173,19 @@ function deleteGoal(title: string) {
         text: 'Delete',
         style: 'destructive',
         onPress: () => {
-          setGoals((currentGoals) =>
-            currentGoals.filter((goal) => goal.title !== title)
-          );
+          const updatedGoals = goals.filter((goal) => goal.title !== title);
+          setGoals(updatedGoals);
+          saveGoals(updatedGoals);
         },
       },
     ]
   );
 }
+
+useEffect(() => {
+  loadGoals();
+}, []);
+
 
   return (
     <View style={styles.container}>
@@ -177,7 +214,7 @@ function deleteGoal(title: string) {
       progress={goal.title}
       completed={goal.completed}
       total={goal.total}
-      onComplete={() => completeGoal(goal.title)}
+      onComplete={() => completeGoal(goal.id)}
       onReset={() => resetGoal(goal.title)}
       onDelete={() => deleteGoal(goal.title)}
     />
