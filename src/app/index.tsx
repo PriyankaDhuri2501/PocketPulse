@@ -1,7 +1,7 @@
 
-import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 
 type WelcomeHeaderProps = {
@@ -16,6 +16,7 @@ type ProgressCardProps = {
   onComplete: () => void;
   onReset: () => void;
   onDelete: () => void;
+  onEdit: () => void;
 };
 
 
@@ -35,8 +36,7 @@ function WelcomeHeader({ title, subtitle }: WelcomeHeaderProps) {
 }
 
 
-
-function ProgressCard({ progress, completed, total, onComplete, onReset, onDelete}: ProgressCardProps) {
+function ProgressCard({ progress, completed, total, onComplete, onReset, onDelete, onEdit}: ProgressCardProps) {
   const progress1 = total > 0 ? Math.min(completed / total, 1) : 0;
   return (
     <View style={styles.card}>
@@ -74,6 +74,16 @@ function ProgressCard({ progress, completed, total, onComplete, onReset, onDelet
     onPress={onDelete}>
       <Text style={styles.deleteButtonText}>Delete Goal</Text>
     </Pressable>
+
+
+<Pressable
+  style={styles.editButton}
+  onPress={onEdit}
+>
+  <Text style={styles.editButtonText}>Edit Goal</Text>
+</Pressable>
+
+    
     </View>
   );
 }
@@ -87,6 +97,8 @@ export default function HomeScreen() {
 
   const savedGoals = JSON.stringify(goals);
   const [newGoalTitle, setNewGoalTitle] = useState('');
+  const [editingGoalId, setEditingGoalId] = useState<string | null>(null);
+  const [editedTitle, setEditedTitle] = useState('');
 
 async function saveGoals(updatedGoals: typeof goals) {
   try {
@@ -99,7 +111,22 @@ async function saveGoals(updatedGoals: typeof goals) {
   }
 }
 
+function editGoal() {
+  if (editedTitle.trim() === '') {
+    return;
+  }
 
+  const updatedGoals = goals.map((goal) =>
+      goal.id === editingGoalId
+        ? { ...goal, title: editedTitle.trim() }
+        : goal
+    )
+    setGoals(updatedGoals);
+    saveGoals(updatedGoals);
+
+    setEditingGoalId(null);
+    setEditedTitle('');
+}
 
 async function loadGoals() {
   try {
@@ -170,6 +197,7 @@ function addGoal() {
 
 }
 
+
 function deleteGoal(id: string) {
   Alert.alert(
     'Delete Goal',
@@ -209,6 +237,42 @@ useEffect(() => {
 <Pressable style={styles.addGoalButton} onPress={addGoal}>
   <Text style={styles.addGoalButtonText}>Add Goal</Text>
 </Pressable>
+
+
+{editingGoalId !== null && (
+  <View>
+    <Text style={styles.editingLabel}>Editing Goal</Text>
+    <TextInput
+      placeholder="Enter the new goal title"
+      value={editedTitle}
+      onChangeText={setEditedTitle}
+      style={styles.goalInput}
+    />
+
+    <Pressable
+      style={styles.addGoalButton}
+      onPress={editGoal}
+    >
+      <Text style={styles.addGoalButtonText}>
+        Save Changes
+      </Text>
+    </Pressable>
+
+<Pressable
+  style={styles.resetButton}
+  onPress={() => {
+    setEditingGoalId(null);
+    setEditedTitle('');
+  }}
+>
+  <Text style={styles.resetButtonText}>Cancel</Text>
+</Pressable>
+
+  </View>
+)}
+
+
+
       
 
 
@@ -227,6 +291,10 @@ useEffect(() => {
       onComplete={() => completeGoal(goal.id)}
       onReset={() => resetGoal(goal.id)}
       onDelete={() => deleteGoal(goal.id)}
+      onEdit={() => {
+  setEditingGoalId(goal.id);
+  setEditedTitle(goal.title);
+}}
     />
   ))}
 </ScrollView>
@@ -356,6 +424,25 @@ deleteButtonText: {
   color: '#FFFFFF',
   fontSize: 14,
   fontWeight: '600',
+},
+editButton: {
+  backgroundColor: '#F59E0B',
+  marginTop: 8,
+  padding: 10,
+  borderRadius: 12,
+  alignItems: 'center',
+
+},
+editButtonText: {
+  color: '#FFFFFF',
+  fontSize: 16,
+  fontWeight: '600',
+},
+editingLabel: {
+  fontSize: 16,
+  fontWeight: '600',
+  color: '#6D28D9',
+  marginBottom: 8,
 },
 });
 
