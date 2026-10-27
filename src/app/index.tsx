@@ -100,6 +100,7 @@ async function saveGoals(updatedGoals: typeof goals) {
 }
 
 
+
 async function loadGoals() {
   try {
     const savedGoals = await AsyncStorage.getItem(
@@ -107,12 +108,23 @@ async function loadGoals() {
     );
 
     if (savedGoals !== null) {
-      setGoals(JSON.parse(savedGoals));
+      const parsedGoals = JSON.parse(savedGoals);
+
+      const goalsWithIds = parsedGoals.map(
+        (goal: any, index: number) => ({
+          ...goal,
+          id: goal.id ?? `${Date.now()}-${index}-${Math.random()}`,
+        })
+      );
+
+      setGoals(goalsWithIds);
+      await saveGoals(goalsWithIds);
     }
   } catch (error) {
     console.log('Error loading goals:', error);
   }
 }
+
 
 
 function completeGoal(id: string) {
@@ -208,7 +220,7 @@ useEffect(() => {
 >
   {goals.map((goal) => (
     <ProgressCard
-      key={goal.title}
+      key={goal.id}
       progress={goal.title}
       completed={goal.completed}
       total={goal.total}
