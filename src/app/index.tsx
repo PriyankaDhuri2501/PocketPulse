@@ -8,17 +8,18 @@ import { styles } from '../styles';
 type WelcomeHeaderProps = {
   title: string;
   subtitle: string;
-  category: string;
 };
 
 type ProgressCardProps = {
   progress: string;
   completed: number;
   total: number;
+  category: string;
   onComplete: () => void;
   onReset: () => void;
   onDelete: () => void;
   onEdit: () => void;
+
 
 };
 
@@ -39,13 +40,15 @@ function WelcomeHeader({ title, subtitle }: WelcomeHeaderProps) {
 }
 
 
-function ProgressCard({ progress, completed, total, onComplete, onReset, onDelete, onEdit}: ProgressCardProps) {
+function ProgressCard({ progress, completed, total, category, onComplete, onReset, onDelete, onEdit}: ProgressCardProps) {
   const progress1 = total > 0 ? Math.min(completed / total, 1) : 0;
   return (
     <View style={styles.card}>
       <Text style={styles.cardTitle}>{progress}</Text>
       <Text style={styles.progress}>{completed} of {total} small steps</Text>
+      <Text style={styles.category}>{category}</Text>
       <View style={styles.progressTrack}>
+        
         <View
           style={[
             styles.progressFill,
@@ -242,7 +245,30 @@ useEffect(() => {
 />
 <Pressable style={styles.addGoalButton} onPress={addGoal}>
   <Text style={styles.addGoalButtonText}>Add Goal</Text>
+
 </Pressable>
+
+<View style={styles.categorySelector}>
+  {['Health', 'Learning', 'Personal'].map((category) => (
+    <Pressable
+      key={category}
+      style={[
+        styles.categoryOption,
+        newGoalCategory === category && styles.selectedCategory,
+      ]}
+      onPress={() => setNewGoalCategory(category)}
+    >
+      <Text
+        style={[
+          styles.categoryOptionText,
+          newGoalCategory === category && styles.selectedCategoryText,
+        ]}
+      >
+        {category}
+      </Text>
+    </Pressable>
+  ))}
+</View>
 
 
 {editingGoalId !== null && (
@@ -294,6 +320,7 @@ useEffect(() => {
       progress={goal.title}
       completed={goal.completed}
       total={goal.total}
+      category={goal.category ?? 'Personal'}
       onComplete={() => completeGoal(goal.id)}
       onReset={() => resetGoal(goal.id)}
       onDelete={() => deleteGoal(goal.id)}

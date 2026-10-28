@@ -142,6 +142,34 @@ editingLabel: {
   color: '#6D28D9',
   marginBottom: 8,
 },
+category: {
+  fontSize: 14,
+  color: '#6B7280',
+  marginBottom: 4,
+},
+
+categorySelector: {
+  flexDirection: 'row',
+  gap: 8,
+  marginBottom: 12,
+},
+categoryOption: {
+  paddingVertical: 10,
+  paddingHorizontal: 14,
+  borderRadius: 10,
+  backgroundColor: '#E5E7EB',
+},
+selectedCategory: {
+  backgroundColor: '#7C3AED',
+},
+categoryOptionText: {
+  color: '#374151',
+  fontWeight: '500',
+},
+selectedCategoryText: {
+  color: '#FFFFFF',
+},
+
 });
 
 
