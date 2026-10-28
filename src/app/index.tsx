@@ -10,6 +10,8 @@ type WelcomeHeaderProps = {
   subtitle: string;
 };
 
+
+
 type ProgressCardProps = {
   progress: string;
   completed: number;
@@ -22,6 +24,16 @@ type ProgressCardProps = {
 
 
 };
+
+
+type Goal = {
+  id: string;
+  title: string;
+  completed: number;
+  total: number;
+  category: string;
+};
+
 
 
 function WelcomeHeader({ title, subtitle }: WelcomeHeaderProps) {
@@ -96,9 +108,9 @@ function ProgressCard({ progress, completed, total, category, onComplete, onRese
 }
 
 export default function HomeScreen() {
-  const [goals, setGoals] = useState([
-    { id: '1', title: 'Drink more water', completed: 3, total: 8 },
-    { id: '2', title: 'Exercise regularly', completed: 5, total: 10 },
+  const [goals, setGoals] = useState<Goal[]>([
+    { id: '1', title: 'Drink more water', completed: 3, total: 8, category: 'Health' },
+    { id: '2', title: 'Exercise regularly', completed: 5, total: 10, category: 'Learning' },
   
   ]);
 
@@ -107,6 +119,7 @@ export default function HomeScreen() {
   const [editingGoalId, setEditingGoalId] = useState<string | null>(null);
   const [editedTitle, setEditedTitle] = useState('');
   const [newGoalCategory, setNewGoalCategory] = useState('Personal');
+  const [selectedFilter , setSelectedFilter] = useState('All');
 
 async function saveGoals(updatedGoals: typeof goals) {
   try {
@@ -243,32 +256,14 @@ useEffect(() => {
   onChangeText={setNewGoalTitle}
   style={styles.goalInput}
 />
+
+
 <Pressable style={styles.addGoalButton} onPress={addGoal}>
   <Text style={styles.addGoalButtonText}>Add Goal</Text>
 
 </Pressable>
 
-<View style={styles.categorySelector}>
-  {['Health', 'Learning', 'Personal'].map((category) => (
-    <Pressable
-      key={category}
-      style={[
-        styles.categoryOption,
-        newGoalCategory === category && styles.selectedCategory,
-      ]}
-      onPress={() => setNewGoalCategory(category)}
-    >
-      <Text
-        style={[
-          styles.categoryOptionText,
-          newGoalCategory === category && styles.selectedCategoryText,
-        ]}
-      >
-        {category}
-      </Text>
-    </Pressable>
-  ))}
-</View>
+
 
 
 {editingGoalId !== null && (
@@ -314,7 +309,13 @@ useEffect(() => {
   contentContainerStyle={styles.goalsContent}
   showsVerticalScrollIndicator={false}
 >
-  {goals.map((goal) => (
+  {goals
+  .filter(
+    (goal) =>
+      selectedFilter === 'All' ||
+      (goal.category ?? 'Personal') === selectedFilter
+  )
+  .map((goal) => (
     <ProgressCard
       key={goal.id}
       progress={goal.title}
