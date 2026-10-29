@@ -38,7 +38,10 @@ type Goal = {
 
 function WelcomeHeader({ title, subtitle }: WelcomeHeaderProps) {
   return (
+    
+  
     <View style={styles.header}>
+  
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.subtitle}>
         {subtitle}
@@ -58,6 +61,7 @@ function ProgressCard({ progress, completed, total, category, onComplete, onRese
     <View style={styles.card}>
       <Text style={styles.cardTitle}>{progress}</Text>
       <Text style={styles.progress}>{completed} of {total} small steps</Text>
+      
       <Text style={styles.category}>{category}</Text>
       <View style={styles.progressTrack}>
         
@@ -120,6 +124,37 @@ export default function HomeScreen() {
   const [editedTitle, setEditedTitle] = useState('');
   const [newGoalCategory, setNewGoalCategory] = useState('Personal');
   const [selectedFilter , setSelectedFilter] = useState('All');
+
+  const totalGoals = goals.length;
+
+const completedGoals = goals.filter(
+  (goal) => goal.total > 0 && goal.completed >= goal.total
+).length;
+
+const inProgressGoals = goals.filter(
+  (goal) => goal.completed > 0 && goal.completed < goal.total
+).length;
+
+const notStartedGoals = goals.filter(
+  (goal) => goal.completed === 0
+).length;
+
+const overallProgress =
+  totalGoals === 0
+    ? 0
+    : Math.round(
+        (goals.reduce(
+          (sum, goal) =>
+            sum +
+            (goal.total > 0
+              ? Math.min(goal.completed / goal.total, 1)
+              : 0),
+          0
+        ) /
+          totalGoals) *
+          100
+      );
+
 
 async function saveGoals(updatedGoals: typeof goals) {
   try {
@@ -250,12 +285,54 @@ useEffect(() => {
   return (
     <View style={styles.container}>
       <WelcomeHeader title="PocketPulse" subtitle="Small steps. Real progress." />
+      
       <TextInput
   placeholder="Enter a new goal"
   value={newGoalTitle}
   onChangeText={setNewGoalTitle}
   style={styles.goalInput}
 />
+
+<View style={styles.dashboard}>
+  <Text style={styles.dashboardTitle}>Your Overview</Text>
+
+  <View style={styles.statsRow}>
+    <View style={styles.statCard}>
+      <Text style={styles.statNumber}>{totalGoals}</Text>
+      <Text style={styles.statLabel}>Total Goals</Text>
+    </View>
+
+    <View style={styles.statCard}>
+      <Text style={styles.statNumber}>{completedGoals}</Text>
+      <Text style={styles.statLabel}>Completed</Text>
+    </View>
+  </View>
+
+  <View style={styles.statsRow}>
+    <View style={styles.statCard}>
+      <Text style={styles.statNumber}>{inProgressGoals}</Text>
+      <Text style={styles.statLabel}>In Progress</Text>
+    </View>
+
+    <View style={styles.statCard}>
+      <Text style={styles.statNumber}>{notStartedGoals}</Text>
+      <Text style={styles.statLabel}>Not Started</Text>
+    </View>
+  </View>
+
+  <Text style={styles.progressSummary}>
+    Overall Progress: {overallProgress}%
+  </Text>
+
+  <View style={styles.overallProgressTrack}>
+    <View
+      style={[
+        styles.overallProgressFill,
+        { width: `${overallProgress}%` },
+      ]}
+    />
+  </View>
+</View>
 
 
 <Pressable style={styles.addGoalButton} onPress={addGoal}>

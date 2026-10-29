@@ -170,6 +170,75 @@ selectedCategoryText: {
   color: '#FFFFFF',
 },
 
+
+dashboard: {
+  width: '100%',
+  padding: 18,
+  marginBottom: 24,
+  borderRadius: 20,
+  backgroundColor: '#FFFFFF',
+  borderWidth: 1,
+  borderColor: '#E5E7EB',
+},
+
+dashboardTitle: {
+  fontSize: 23,
+  fontWeight: '700',
+  color: '#111827',
+  marginBottom: 18,
+},
+
+statsRow: {
+  flexDirection: 'row',
+  gap: 12,
+  marginBottom: 12,
+},
+
+statCard: {
+  flex: 1,
+  minHeight: 100,
+  padding: 16,
+  borderRadius: 16,
+  backgroundColor: '#F3E8FF',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+statNumber: {
+  fontSize: 30,
+  fontWeight: '700',
+  color: '#7C3AED',
+},
+
+statLabel: {
+  fontSize: 13,
+  color: '#4B5563',
+  marginTop: 6,
+  textAlign: 'center',
+},
+
+progressSummary: {
+  fontSize: 15,
+  fontWeight: '600',
+  color: '#374151',
+  marginTop: 12,
+  marginBottom: 10,
+},
+
+overallProgressTrack: {
+  height: 12,
+  borderRadius: 6,
+  backgroundColor: '#E5E7EB',
+  overflow: 'hidden',
+},
+
+overallProgressFill: {
+  height: '100%',
+  borderRadius: 6,
+  backgroundColor: '#7C3AED',
+},
+
+
 });
 
 
